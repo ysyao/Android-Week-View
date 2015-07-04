@@ -17,6 +17,7 @@
         <attr name="headerRowPadding" format="dimension"/>
         <attr name="columnGap" format="dimension"/>
         <attr name="headerColumnTextColor" format="color"/>
+        <attr name="noOfVisibleDaysOnScreen" format="integer"/>
         <attr name="noOfVisibleDays" format="integer"/>
         <attr name="headerRowBackgroundColor" format="color"/>
         <attr name="dayBackgroundColor" format="color"/>
