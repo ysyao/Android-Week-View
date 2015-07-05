@@ -72,6 +72,7 @@ public class WeekView extends View {
     private float mDistanceY = 0;
     private float mDistanceX = 0;
     private Direction mCurrentFlingDirection = Direction.NONE;
+    private float offSetScrollX;
 
     // Attributes and their default values.
     private int mHourHeight = 50;
@@ -444,19 +445,43 @@ public class WeekView extends View {
             mCurrentOrigin.x -= mDistanceX;
         }
 
+//        if (mCurrentOrigin.x == 0) {
+//            leftDaysWithGaps = (int) -(Math.ceil(mCurrentOrigin.x / (mWidthPerDay + mColumnGap)) - 1);
+//            if ((leftDaysWithGaps + mNumberOfVisibleDaysOnScreen - 1) == mNumberOfVisibleDays) {
+//                mMaxOffsetX = mCurrentOrigin.x;
+//            }else if ((leftDaysWithGaps + mNumberOfVisibleDaysOnScreen - 1) > mNumberOfVisibleDays) {
+//                leftDaysWithGaps = mNumberOfVisibleDays - mNumberOfVisibleDaysOnScreen + 1;
+//                mCurrentOrigin.x = mMaxOffsetX;
+//            } else if (leftDaysWithGaps < 0) {
+//                leftDaysWithGaps = 0;
+//                mCurrentOrigin.x = 0;
+//            }
+//        } else {
+//
+//        }
+
         int leftDaysWithGaps = (int) -(Math.ceil(mCurrentOrigin.x / (mWidthPerDay + mColumnGap)));
-        if ((leftDaysWithGaps + mNumberOfVisibleDaysOnScreen) == mNumberOfVisibleDays) {
+        if ((leftDaysWithGaps + mNumberOfVisibleDaysOnScreen) == mNumberOfVisibleDays + 1) {
             mMaxOffsetX = mCurrentOrigin.x;
-        }else if ((leftDaysWithGaps + mNumberOfVisibleDaysOnScreen) > mNumberOfVisibleDays) {
-            leftDaysWithGaps = mNumberOfVisibleDays - mNumberOfVisibleDaysOnScreen;
+        } else if ((leftDaysWithGaps + mNumberOfVisibleDaysOnScreen) > mNumberOfVisibleDays + 1) {
+            leftDaysWithGaps = mNumberOfVisibleDays - mNumberOfVisibleDaysOnScreen + 1;
             mCurrentOrigin.x = mMaxOffsetX;
         } else if (leftDaysWithGaps < 0) {
             leftDaysWithGaps = 0;
             mCurrentOrigin.x = 0;
         }
 
-        float startFromPixel = mCurrentOrigin.x + (mWidthPerDay + mColumnGap) * leftDaysWithGaps +
+//        float startFromPixel;
+        float startFromPixel = mCurrentOrigin.x + (mWidthPerDay + mColumnGap) * (leftDaysWithGaps) +
                 mHeaderColumnWidth;
+//        if (mCurrentOrigin.x > -(mWidthPerDay + mColumnGap)){
+//            startFromPixel = mCurrentOrigin.x + (mWidthPerDay + mColumnGap) * (leftDaysWithGaps + 1) +
+//                    mHeaderColumnWidth;
+//        }
+//        else {
+//            startFromPixel = mCurrentOrigin.x + (mWidthPerDay + mColumnGap) * (leftDaysWithGaps) +
+//                    mHeaderColumnWidth;
+//        }
         float startPixel = startFromPixel;
 
         // Prepare to iterate for each day.
@@ -484,7 +509,7 @@ public class WeekView extends View {
             mScrollListener.onFirstVisibleDayChanged(mFirstVisibleDay, oldFirstVisibleDay);
         }
 
-        for (int dayNumber = leftDaysWithGaps + 1;
+        for (int dayNumber = leftDaysWithGaps;
              dayNumber <= leftDaysWithGaps + mNumberOfVisibleDaysOnScreen + 1;
              dayNumber++) {
 
@@ -501,7 +526,7 @@ public class WeekView extends View {
 //                getMoreEvents(day);
 
                 //init events
-               initEvents(day);
+                initEvents(day);
                 mRefreshEvents = false;
             }
 
@@ -527,7 +552,10 @@ public class WeekView extends View {
             canvas.drawLines(hourLines, mHourSeparatorPaint);
 
             // Draw the events.
-            drawEvents(day, startPixel, canvas);
+            if (dayNumber == leftDaysWithGaps && mCurrentOrigin.x > -(mWidthPerDay + mColumnGap)) {
+
+            } else
+                drawEvents(day, startPixel, canvas);
 //            drawScheduledPersonEvents(day, startPixel, canvas);
 
             // In the next iteration, start from the next day.
@@ -539,7 +567,7 @@ public class WeekView extends View {
 
         // Draw the header row texts.
         startPixel = startFromPixel;
-        for (int dayNumber=leftDaysWithGaps+1; dayNumber <= leftDaysWithGaps + mNumberOfVisibleDaysOnScreen + 1; dayNumber++) {
+        for (int dayNumber=leftDaysWithGaps; dayNumber <= mNumberOfVisibleDays + 2; dayNumber++) {
             // Check if the day is today.
             day = (Calendar) mToday.clone();
             day.add(Calendar.DATE, dayNumber - 1);
@@ -549,7 +577,11 @@ public class WeekView extends View {
             String dayLabel = getDateTimeInterpreter().interpretDate(day);
             if (dayLabel == null)
                 throw new IllegalStateException("A DateTimeInterpreter must not return null date");
-            canvas.drawText(dayLabel, startPixel + mWidthPerDay / 2, mHeaderTextHeight + mHeaderRowPadding, sameDay ? mTodayHeaderTextPaint : mHeaderTextPaint);
+
+            if (dayNumber == leftDaysWithGaps && mCurrentOrigin.x > -(mWidthPerDay + mColumnGap))
+                canvas.drawText("上午/下午", startPixel + mWidthPerDay / 2, mHeaderTextHeight + mHeaderRowPadding, sameDay ? mTodayHeaderTextPaint : mHeaderTextPaint);
+            else
+                canvas.drawText(dayLabel, startPixel + mWidthPerDay / 2, mHeaderTextHeight + mHeaderRowPadding, sameDay ? mTodayHeaderTextPaint : mHeaderTextPaint);
             startPixel += mWidthPerDay + mColumnGap;
         }
     }
@@ -1666,7 +1698,7 @@ public class WeekView extends View {
         mCurrentOrigin.y = -verticalOffset;
         invalidate();
     }
-///////////////////////////////////////////////
+    ///////////////////////////////////////////////
     public void goToRow(double rowNum){
         int verticalOffset = (int) (mHourHeight * rowNum);
         if (rowNum < 0)
