@@ -288,7 +288,8 @@ public class WeekView extends View {
         mTimeTextPaint.getTextBounds("00 PM", 0, "00 PM".length(), rect);
         mTimeTextWidth = mTimeTextPaint.measureText("00 PM");
         mTimeTextHeight = rect.height();
-        mHeaderMarginBottom = mTimeTextHeight / 2;
+//        mHeaderMarginBottom = mTimeTextHeight / 2;
+        mHeaderMarginBottom = 0;
 
         // Measure settings for header row.
         mHeaderTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -420,9 +421,9 @@ public class WeekView extends View {
 
     private void drawHeaderRowAndEvents(Canvas canvas) {
         // Calculate the available width for each day.
-        mHeaderColumnWidth = mTimeTextWidth + mHeaderColumnPadding *2;
+        mHeaderColumnWidth = mTimeTextWidth + mHeaderColumnPadding * 2;
         mWidthPerDay = getWidth() - mHeaderColumnWidth * 2 - mColumnGap * (mNumberOfVisibleDaysOnScreen - 1);
-        mWidthPerDay = mWidthPerDay/ mNumberOfVisibleDaysOnScreen;
+        mWidthPerDay = mWidthPerDay / mNumberOfVisibleDaysOnScreen;
 
         if (mAreDimensionsInvalid) {
             mAreDimensionsInvalid = false;
@@ -525,7 +526,7 @@ public class WeekView extends View {
             }
 
             // Draw background color for each day.
-            float start =  (startPixel < mHeaderColumnWidth * 2 ? mHeaderColumnWidth * 2: startPixel);
+            float start =  (startPixel < mHeaderColumnWidth * 2 ? mHeaderColumnWidth * 2 : startPixel);
             if (mWidthPerDay + startPixel - start > 0)
                 canvas.drawRect(start, mHeaderTextHeight + mHeaderRowPadding * 2 + mTimeTextHeight/2 + mHeaderMarginBottom, startPixel + mWidthPerDay, getHeight(), sameDay ? mTodayBackgroundPaint : mDayBackgroundPaint);
 
@@ -1626,7 +1627,7 @@ public class WeekView extends View {
         int dateDifference = (int) ((dateInMillis - todayInMillis) / (1000 * 60 * 60 * 24));
 
         mCurrentOrigin.x = - dateDifference * (mWidthPerDay + mColumnGap);
-        // mStickyScroller.startScroll((int) mCurrentOrigin.x, 0, (int) (-dateDifference*(mWidthPerDay + mColumnGap)-mCurrentOrigin.x), 0);
+        mStickyScroller.startScroll((int) mCurrentOrigin.x, 0, (int) (-dateDifference*(mWidthPerDay + mColumnGap)-mCurrentOrigin.x), 0);
         invalidate();
     }
 
@@ -1706,7 +1707,8 @@ public class WeekView extends View {
         if (mAreDimensionsInvalid) {
             mScrollToHour = rowNum;
             return;
-        } else if (verticalOffset > mHourHeight * names.length - getHeight() + mHeaderTextHeight + mHeaderRowPadding * 2 + mHeaderMarginBottom)
+        }
+        else if (verticalOffset > mHourHeight * names.length - getHeight() + mHeaderTextHeight + mHeaderRowPadding * 2 + mHeaderMarginBottom)
             verticalOffset = (int)(mHourHeight * names.length - getHeight() + mHeaderTextHeight + mHeaderRowPadding * 2 + mHeaderMarginBottom);
 
         mCurrentOrigin.y = -verticalOffset;
