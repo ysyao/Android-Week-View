@@ -45,9 +45,10 @@ public class WeekView extends View {
     private final Context mContext;
     private Calendar mToday;
     private Calendar mStartDate;
-    private Paint mTimeTextPaint;
+    private TextPaint mTimeTextPaint;
     private float mTimeTextWidth;
     private float mTimeTextHeight;
+    private float mRowHeaderWidth;
     private Paint mHeaderTextPaint;
     private float mHeaderTextHeight;
     private GestureDetectorCompat mGestureDetector;
@@ -280,16 +281,19 @@ public class WeekView extends View {
         mStickyScroller = new Scroller(mContext);
 
         // Measure settings for time column.
-        mTimeTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mTimeTextPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
         mTimeTextPaint.setTextAlign(Paint.Align.RIGHT);
         mTimeTextPaint.setTextSize(mTextSize);
         mTimeTextPaint.setColor(mHeaderColumnTextColor);
         Rect rect = new Rect();
-        mTimeTextPaint.getTextBounds("00 PM", 0, "00 PM".length(), rect);
-        mTimeTextWidth = mTimeTextPaint.measureText("00 PM");
+        mTimeTextPaint.getTextBounds("这里是", 0, "这里是".length(), rect);
+        mTimeTextWidth = mTimeTextPaint.measureText("这里是");
         mTimeTextHeight = rect.height();
 //        mHeaderMarginBottom = mTimeTextHeight / 2;
         mHeaderMarginBottom = 0;
+
+        //Measure header with of every row
+        mRowHeaderWidth = (mTimeTextWidth + mHeaderColumnPadding) * 2 + mHeaderColumnPadding;
 
         // Measure settings for header row.
         mHeaderTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -358,8 +362,8 @@ public class WeekView extends View {
         // Hide everything in the first cell (top left corner).
         canvas.drawRect(0, 0, mTimeTextWidth + mHeaderColumnPadding * 2 + mHeaderColumnWidth , mHeaderTextHeight + mHeaderRowPadding * 2, mHeaderBackgroundPaint);
 
-        // Hide anything that is in the bottom margin of the header row.
-        canvas.drawRect(mHeaderColumnWidth * 2, mHeaderTextHeight + mHeaderRowPadding * 2, getWidth(), mHeaderRowPadding * 2 + mHeaderTextHeight + mHeaderMarginBottom + mTimeTextHeight/2 - mHourSeparatorHeight / 2, mHeaderColumnBackgroundPaint);
+        // Hide anything that is in the bottom margin of the header row. not mHeaderColumnWidth * 2
+        canvas.drawRect(mTimeTextWidth + mHeaderColumnPadding * 2, mHeaderTextHeight + mHeaderRowPadding * 2, getWidth(), mHeaderRowPadding * 2 + mHeaderTextHeight + mHeaderMarginBottom + mTimeTextHeight/2 - mHourSeparatorHeight / 2, mHeaderColumnBackgroundPaint);
     }
 
     private void drawTimeColumnAndAxes(Canvas canvas) {
@@ -399,30 +403,45 @@ public class WeekView extends View {
         canvas.drawRect(0, mHeaderTextHeight + mHeaderRowPadding * 2, mHeaderColumnWidth, getHeight(), mHeaderColumnBackgroundPaint);
 
         //Draw the time-zone background color for the header column.
-        canvas.drawRect(mHeaderColumnWidth, mHeaderTextHeight + mHeaderRowPadding * 2, mHeaderColumnWidth * 2, getHeight(), mHeaderColumnBackgroundPaint);
+        canvas.drawRect(mHeaderColumnWidth, mHeaderTextHeight + mHeaderRowPadding * 2, mRowHeaderWidth, getHeight(), mHeaderColumnBackgroundPaint);
 
         for (int i = 0; i < names.length; i++) {
             float top = mHeaderTextHeight + mHeaderRowPadding * 2 + mCurrentOrigin.y + mHourHeight * i + mHeaderMarginBottom + mHourHeight / 2;
-
-
             // Draw the text if its y position is not outside of the visible area. The pivot point of the text is the point at the bottom-right corner.
 //            String time = getDateTimeInterpreter().interpretTime(i);
 //            if (time == null)
 //                throw new IllegalStateException("A DateTimeInterpreter must not return null time");
-            float titleHeight = mHeaderTextHeight + mHeaderRowPadding * 2;
+            float titleHeight = mHourHeight + mHeaderMarginBottom;
+            //The x position of name title;
+            float nameX = mTimeTextWidth + mHeaderColumnPadding;
+
             if (top < getHeight()){
-                canvas.drawText(names[i].getName(), mTimeTextWidth + mHeaderColumnPadding, top + mTimeTextHeight, mTimeTextPaint);
-                canvas.drawText("上午", mTimeTextWidth + mHeaderColumnPadding + mHeaderColumnWidth, top + titleHeight / 4, mTimeTextPaint);
-                canvas.drawText("下午", mTimeTextWidth + mHeaderColumnPadding + mHeaderColumnWidth, top + titleHeight * 3 / 4, mTimeTextPaint);
+//                canvas.drawText(names[i].getName(), nameX, top + mTimeTextHeight, mTimeTextPaint);
+                drawMutiLineTexts(names[i].getName(), nameX, top, (int)mTimeTextWidth, canvas, mTimeTextPaint);
+//                drawCentralText(canvas, mTimeTextPaint, names[i].getName(), mHeaderColumnPadding, top - mHourHeight / 2, mTimeTextWidth + mHeaderColumnPadding, top + mHourHeight);
+
+                //The x position of time-zone title;
+                float textLength = mTimeTextPaint.measureText("上午");
+                float textPadding = (mTimeTextWidth - textLength) / 2;
+                float timeZoneWordX = nameX + mHeaderColumnPadding + mTimeTextWidth - textPadding;
+                canvas.drawText("上午", timeZoneWordX, (top + mTimeTextHeight) - titleHeight / 4, mTimeTextPaint);
+                canvas.drawText("下午", timeZoneWordX, (top + mTimeTextHeight) + titleHeight / 4, mTimeTextPaint);
             }
+            //Draw the background of time(morning\afternoon)title
+            float startX = nameX + mHeaderColumnPadding;
+            float endX = nameX + mHeaderColumnPadding + mTimeTextWidth;
+            canvas.drawRect(startX, top - mHourHeight / 2, endX, top + mHourHeight / 2, mDayBackgroundPaint);
+
+           drawLines(startX, endX - startX, canvas);
         }
     }
     ////////////////////////////////////////////
 
     private void drawHeaderRowAndEvents(Canvas canvas) {
+
         // Calculate the available width for each day.
         mHeaderColumnWidth = mTimeTextWidth + mHeaderColumnPadding * 2;
-        mWidthPerDay = getWidth() - mHeaderColumnWidth * 2 - mColumnGap * (mNumberOfVisibleDaysOnScreen - 1);
+        mWidthPerDay = getWidth() - mRowHeaderWidth - mColumnGap * (mNumberOfVisibleDaysOnScreen - 1);
         mWidthPerDay = mWidthPerDay / mNumberOfVisibleDaysOnScreen;
 
         if (mAreDimensionsInvalid) {
@@ -469,7 +488,7 @@ public class WeekView extends View {
 
 //        float startFromPixel;
         float startFromPixel = mCurrentOrigin.x + (mWidthPerDay + mColumnGap) * (leftDaysWithGaps) +
-                mHeaderColumnWidth * 2;
+                mRowHeaderWidth;
 //        if (mCurrentOrigin.x > -(mWidthPerDay + mColumnGap)){
 //            startFromPixel = mCurrentOrigin.x + (mWidthPerDay + mColumnGap) * (leftDaysWithGaps + 1) +
 //                    mHeaderColumnWidth;
@@ -483,12 +502,6 @@ public class WeekView extends View {
         // Prepare to iterate for each day.
         Calendar day = (Calendar) mToday.clone();
         day.add(Calendar.HOUR, 6);
-
-        // Prepare to iterate for each hour to draw the hour lines.
-        int lineCount = (int) ((getHeight() - mHeaderTextHeight - mHeaderRowPadding * 2 -
-                mHeaderMarginBottom) / mHourHeight) + 1;
-        lineCount = (lineCount) * (mNumberOfVisibleDaysOnScreen + 1);
-        float[] hourLines = new float[lineCount * 4];
 
         // Clear the cache for event rectangles.
         if (mEventRects != null) {
@@ -526,9 +539,15 @@ public class WeekView extends View {
             }
 
             // Draw background color for each day.
-            float start =  (startPixel < mHeaderColumnWidth * 2 ? mHeaderColumnWidth * 2 : startPixel);
+            float start =  (startPixel < mRowHeaderWidth ? mRowHeaderWidth : startPixel);
             if (mWidthPerDay + startPixel - start > 0)
                 canvas.drawRect(start, mHeaderTextHeight + mHeaderRowPadding * 2 + mTimeTextHeight/2 + mHeaderMarginBottom, startPixel + mWidthPerDay, getHeight(), sameDay ? mTodayBackgroundPaint : mDayBackgroundPaint);
+
+            // Prepare to iterate for each hour to draw the hour lines.
+            int lineCount = (int) ((getHeight() - mHeaderTextHeight - mHeaderRowPadding * 2 -
+                    mHeaderMarginBottom) / mHourHeight) + 1;
+            lineCount = (lineCount) * (mNumberOfVisibleDaysOnScreen + 1);
+            float[] hourLines = new float[lineCount * 4];
 
             // Prepare the separator lines for hours.
             int i = 0;
@@ -584,6 +603,63 @@ public class WeekView extends View {
         }
     }
 
+    /**
+     * Draw the line of time-zones in header.(morning or afternoon)
+     * @param startPixel
+     * @param lineLength
+     * @param canvas
+     */
+    private void drawLines(float startPixel, float lineLength, Canvas canvas) {
+//        float start =  (startPixel < lineLength ? lineLength : startPixel);
+        // Prepare to iterate for each hour to draw the hour lines.
+        int lineCount = (int) ((getHeight() - mHeaderTextHeight - mHeaderRowPadding * 2 -
+                mHeaderMarginBottom) / mHourHeight) + 1;
+        lineCount = (lineCount) * (mNumberOfVisibleDaysOnScreen + 1);
+        float[] hourLines = new float[lineCount * 4];
+
+        // Prepare the separator lines for hours.
+        int i = 0;
+        for (int hourNumber = 0; hourNumber < names.length; hourNumber++) {
+            float top;
+            top = mHeaderTextHeight + mHeaderRowPadding * 2 + mCurrentOrigin.y + mHourHeight * hourNumber + mTimeTextHeight/2 + mHeaderMarginBottom;
+            if (top > mHeaderTextHeight + mHeaderRowPadding * 2 + mTimeTextHeight/2 + mHeaderMarginBottom - mHourSeparatorHeight && top < getHeight() && startPixel + lineLength - startPixel > 0){
+                hourLines[i * 4] = startPixel;
+                hourLines[i * 4 + 1] = top;
+                hourLines[i * 4 + 2] = startPixel + lineLength;
+                hourLines[i * 4 + 3] = top;
+                i++;
+            }
+        }
+
+        // Draw the lines for hours.
+        canvas.drawLines(hourLines, mHourSeparatorPaint);
+    }
+
+    private void drawCentralText(Canvas canvas, Paint paint, String text, float left, float top, float right, float bottom) {
+        Rect textBounds = new Rect((int)left, (int)top, (int)right, (int)bottom); //don't new this up in a draw method
+        paint.getTextBounds(text, 0, text.length(), textBounds);
+        canvas.drawText(text, right - textBounds.exactCenterX(), bottom - textBounds.exactCenterY(), paint);
+//        Rect rect = new Rect();
+//        mTimeTextPaint.getTextBounds("这里是", 0, "这里是".length(), rect);
+//        mTimeTextWidth = mTimeTextPaint.measureText("这里是");
+//        mTimeTextHeight = rect.height();
+    }
+    /**
+     * Draw texts which can change line automatically.
+     * @param text
+     * @param x
+     * @param y
+     * @param canvas
+     */
+    private void drawMutiLineTexts(String text, float x, float y, int width, Canvas canvas, TextPaint paint) {
+        StaticLayout mTextLayout = new StaticLayout(text, paint, width, Layout.Alignment.ALIGN_NORMAL, 1.0f, 0.0f, false);
+        canvas.save();
+
+        // calculate x and y position where your text will be placed
+        canvas.translate(x, y);
+        mTextLayout.draw(canvas);
+        canvas.restore();
+    }
     /**
      * Get the time and date where the user clicked on.
      * @param x The x position of the touch event.

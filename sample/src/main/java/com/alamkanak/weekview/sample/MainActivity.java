@@ -143,7 +143,7 @@ public class MainActivity extends ActionBarActivity implements WeekView.MonthCha
 
 
     private ScheduledPerson[] initPerson() {
-       ScheduledPerson person1 = new ScheduledPerson(new int[]{Calendar.MONDAY, Calendar.SATURDAY}, "white");
+       ScheduledPerson person1 = new ScheduledPerson(new int[]{Calendar.MONDAY, Calendar.SATURDAY}, "华西-妇科主任-里待遇");
         ScheduledPerson person2 = new ScheduledPerson(new int[]{Calendar.THURSDAY, Calendar.SUNDAY}, "black");
         ScheduledPerson person3 = new ScheduledPerson(new int[]{Calendar.WEDNESDAY, Calendar.MONDAY}, "green");
         ScheduledPerson person4 = new ScheduledPerson(new int[]{Calendar.TUESDAY, Calendar.FRIDAY}, "blue");
