@@ -3,6 +3,7 @@ package com.alamkanak.weekview.sample;
 import android.graphics.RectF;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,7 +25,7 @@ import java.util.Locale;
  * Created by Raquib-ul-Alam Kanak on 7/21/2014.
  * Website: http://alamkanak.github.io/
  */
-public class MainActivity extends ActionBarActivity implements WeekView.MonthChangeListener,
+public class WeekViewActivity extends AppCompatActivity implements WeekView.MonthChangeListener,
         WeekView.EventClickListener, WeekView.EventLongPressListener {
 
     private static final int TYPE_DAY_VIEW = 1;
@@ -143,7 +144,7 @@ public class MainActivity extends ActionBarActivity implements WeekView.MonthCha
 
 
     private ScheduledPerson[] initPerson() {
-       ScheduledPerson person1 = new ScheduledPerson(new int[]{Calendar.MONDAY, Calendar.SATURDAY}, "华西-妇科主任-里待遇");
+       ScheduledPerson person1 = new ScheduledPerson(new int[]{Calendar.MONDAY, Calendar.SATURDAY}, "华西-妇科主任-李价");
         ScheduledPerson person2 = new ScheduledPerson(new int[]{Calendar.THURSDAY, Calendar.SUNDAY}, "black");
         ScheduledPerson person3 = new ScheduledPerson(new int[]{Calendar.WEDNESDAY, Calendar.MONDAY}, "green");
         ScheduledPerson person4 = new ScheduledPerson(new int[]{Calendar.TUESDAY, Calendar.FRIDAY}, "blue");
@@ -274,12 +275,12 @@ public class MainActivity extends ActionBarActivity implements WeekView.MonthCha
 
     @Override
     public void onEventClick(WeekViewEvent event, RectF eventRect) {
-        Toast.makeText(MainActivity.this, "Clicked " + event.getName(), Toast.LENGTH_SHORT).show();
+        Toast.makeText(WeekViewActivity.this, "Clicked " + event.getName(), Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onEventLongPress(WeekViewEvent event, RectF eventRect) {
-        Toast.makeText(MainActivity.this, "Long pressed event: " + event.getName(), Toast.LENGTH_SHORT).show();
+        Toast.makeText(WeekViewActivity.this, "Long pressed event: " + event.getName(), Toast.LENGTH_SHORT).show();
     }
 
 }
