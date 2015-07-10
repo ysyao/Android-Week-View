@@ -359,11 +359,24 @@ public class WeekView extends View {
 //        drawTimeColumnAndAxes(canvas);
         drawNameColumnAndAxes(canvas);
 
-        // Hide everything in the first cell (top left corner).
-        canvas.drawRect(0, 0, mTimeTextWidth + mHeaderColumnPadding * 2 + mHeaderColumnWidth , mHeaderTextHeight + mHeaderRowPadding * 2, mHeaderBackgroundPaint);
+        // Hide everything in the first cell (top left corner)
+        canvas.drawRect(0, 0, mRowHeaderWidth, mHeaderTextHeight + mHeaderRowPadding * 2, mHeaderBackgroundPaint);
+
+        drawNameAndPeriodTitle(canvas);
 
         // Hide anything that is in the bottom margin of the header row. not mHeaderColumnWidth * 2
-        canvas.drawRect(mTimeTextWidth + mHeaderColumnPadding * 2, mHeaderTextHeight + mHeaderRowPadding * 2, getWidth(), mHeaderRowPadding * 2 + mHeaderTextHeight + mHeaderMarginBottom + mTimeTextHeight/2 - mHourSeparatorHeight / 2, mHeaderColumnBackgroundPaint);
+        canvas.drawRect(0, mHeaderTextHeight + mHeaderRowPadding * 2, getWidth(), mHeaderRowPadding * 2 + mHeaderTextHeight + mHeaderMarginBottom + mTimeTextHeight/2 - mHourSeparatorHeight / 2, mHeaderColumnBackgroundPaint);
+    }
+
+    private void drawNameAndPeriodTitle(Canvas canvas) {
+        //Draw the header row names and periods.
+        float nameX = (mTimeTextWidth + mHeaderColumnPadding * 2) / 2;
+        canvas.drawText("医生", nameX, mHeaderTextHeight + mHeaderRowPadding, mHeaderTextPaint);
+
+        float textLength = mTimeTextPaint.measureText("时段");
+        float textPadding = (mTimeTextWidth - textLength) / 2;
+        float timeZoneWordX = nameX + mHeaderColumnPadding + mTimeTextWidth - textPadding;
+        canvas.drawText("时段", timeZoneWordX, mHeaderTextHeight + mHeaderRowPadding, mHeaderTextPaint);
     }
 
     private void drawTimeColumnAndAxes(Canvas canvas) {
@@ -417,7 +430,7 @@ public class WeekView extends View {
 
             if (top < getHeight()){
 //                canvas.drawText(names[i].getName(), nameX, top + mTimeTextHeight, mTimeTextPaint);
-                drawMutiLineTexts(names[i].getName(), nameX, top, (int)mTimeTextWidth, canvas, mTimeTextPaint);
+                drawMutiLineTexts(names[i].getName(), nameX, top - mHourHeight / 2 + mTimeTextHeight, (int)mTimeTextWidth, canvas, mTimeTextPaint);
 //                drawCentralText(canvas, mTimeTextPaint, names[i].getName(), mHeaderColumnPadding, top - mHourHeight / 2, mTimeTextWidth + mHeaderColumnPadding, top + mHourHeight);
 
                 //The x position of time-zone title;
@@ -581,7 +594,7 @@ public class WeekView extends View {
         // Draw the header background.
         canvas.drawRect(0, 0, getWidth(), mHeaderTextHeight + mHeaderRowPadding * 2, mHeaderBackgroundPaint);
 
-        // Draw the header row texts.
+        // Draw the header row texts(weekdays)
         startPixel = startFromPixel;
         for (int dayNumber=leftDaysWithGaps; dayNumber <= mNumberOfVisibleDays; dayNumber++) {
             // Check if the day is today.
