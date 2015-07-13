@@ -180,7 +180,6 @@ public class WeekView extends View {
             return true;
         }
 
-
         @Override
         public boolean onSingleTapConfirmed(MotionEvent e) {
             // If the tap was on an event then trigger the callback.
@@ -461,9 +460,11 @@ public class WeekView extends View {
                 canvas.drawText("下午", timeZoneWordX, (top + mTimeTextHeight) + titleHeight / 4, mTimeTextPaint);
             }
             //Draw the background of time(morning\afternoon)title
+            float bottom = mHeaderTextHeight + mHeaderRowPadding * 2 + mCurrentOrigin.y + mHourHeight * doctors.size() + mTimeTextHeight/2 + mHeaderMarginBottom;
             float startX = nameX + mHeaderColumnPadding;
             float endX = nameX + mHeaderColumnPadding + mTimeTextWidth;
-            canvas.drawRect(startX, top - mHourHeight / 2, endX, top + mHourHeight / 2, mDayBackgroundPaint);
+//            canvas.drawRect(startX, top - mHourHeight / 2, endX, top + mHourHeight / 2, mDayBackgroundPaint);
+            canvas.drawRect(startX, top - mHourHeight / 2, endX, bottom, mDayBackgroundPaint);
 
            drawLines(startX, endX - startX, canvas);
         }
