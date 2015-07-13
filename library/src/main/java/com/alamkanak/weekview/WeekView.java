@@ -132,14 +132,15 @@ public class WeekView extends View {
 
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            //Make sure the scroll bar scrolling horizentally only when user touching location inside the table
+            float maxScorllDistanceY = mHourHeight * doctors.size() + mHeaderTextHeight + mHeaderRowPadding * 2;
+            if (e2.getY() > maxScorllDistanceY || e1.getY() > maxScorllDistanceY) {
+//                mCurrentScrollDirection = null;
+                return false;
+            }
+
             if (mCurrentScrollDirection == Direction.NONE) {
                 if (Math.abs(distanceX) > Math.abs(distanceY)){
-                    //Make sure the scroll bar scrolling horizentally only when user touching location inside the table
-                    float maxScorllDistanceY = mHourHeight * doctors.size() + mHeaderTextHeight + mHeaderRowPadding * 2;
-                    if (e1.getY() > maxScorllDistanceY) {
-                        return false;
-                    }
-
                     mCurrentScrollDirection = Direction.HORIZONTAL;
                     mCurrentFlingDirection = Direction.HORIZONTAL;
                 } else {
@@ -157,6 +158,13 @@ public class WeekView extends View {
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
             mScroller.forceFinished(true);
             mStickyScroller.forceFinished(true);
+
+            //Make sure the scroll bar scrolling horizentally only when user touching location inside the table
+            float maxScorllDistanceY = mHourHeight * doctors.size() + mHeaderTextHeight + mHeaderRowPadding * 2;
+            if (e2.getY() > maxScorllDistanceY || e1.getY() > maxScorllDistanceY) {
+//                mCurrentScrollDirection = null;
+                return false;
+            }
 
             if (mCurrentFlingDirection == Direction.HORIZONTAL){
                 mScroller.fling((int) mCurrentOrigin.x, 0, (int) (velocityX * mXScrollingSpeed), 0, Integer.MIN_VALUE, Integer.MAX_VALUE, 0, 0);
@@ -1641,7 +1649,6 @@ public class WeekView extends View {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         if (event.getAction() == MotionEvent.ACTION_UP) {
-
             if (mCurrentScrollDirection == Direction.HORIZONTAL) {
                 float leftDays = Math.round(mCurrentOrigin.x / (mWidthPerDay + mColumnGap));
                 int nearestOrigin = (int) (mCurrentOrigin.x - leftDays * (mWidthPerDay+mColumnGap));
