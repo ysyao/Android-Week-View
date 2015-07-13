@@ -1,29 +1,30 @@
 package com.alamkanak.weekview;
 
+import com.adtech.webservice.daomain.Doctor;
+import com.google.gson.annotations.SerializedName;
+
+import java.util.List;
+
 public class ScheduledPerson {
-    private int[] scheduledDay;
-    private String name;
+    @SerializedName("tList")
+    private List<Doctor> doctors;
+    private String messageStatus;
 
     public ScheduledPerson() {}
 
-    public ScheduledPerson(int[] scheduledDay, String name) {
-        this.scheduledDay = scheduledDay;
-        this.name = name;
+    public List<Doctor> getDoctors() {
+        return doctors;
     }
 
-    public int[] getScheduledDay() {
-        return scheduledDay;
+    public void setDoctors(List<Doctor> doctors) {
+        this.doctors = doctors;
     }
 
-    public void setScheduledDay(int[] scheduledDay) {
-        this.scheduledDay = scheduledDay;
+    public String getMessageStatus() {
+        return messageStatus;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+    public void setMessageStatus(String messageStatus) {
+        this.messageStatus = messageStatus;
     }
 }

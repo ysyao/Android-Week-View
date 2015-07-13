@@ -25,6 +25,8 @@ import android.view.View;
 import android.widget.OverScroller;
 import android.widget.Scroller;
 
+import com.adtech.webservice.daomain.Doctor;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -117,7 +119,7 @@ public class WeekView extends View {
     private DateTimeInterpreter mDateTimeInterpreter;
     private ScrollListener mScrollListener;
 
-    private ScheduledPerson[] names ;
+    private List<Doctor> doctors ;
 
     private final GestureDetector.SimpleOnGestureListener mGestureListener = new GestureDetector.SimpleOnGestureListener() {
 
@@ -132,10 +134,15 @@ public class WeekView extends View {
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
             if (mCurrentScrollDirection == Direction.NONE) {
                 if (Math.abs(distanceX) > Math.abs(distanceY)){
+                    //Make sure the scroll bar scrolling horizentally only when user touching location inside the table
+                    float maxScorllDistanceY = mHourHeight * doctors.size() + mHeaderTextHeight + mHeaderRowPadding * 2;
+                    if (e1.getY() > maxScorllDistanceY) {
+                        return false;
+                    }
+
                     mCurrentScrollDirection = Direction.HORIZONTAL;
                     mCurrentFlingDirection = Direction.HORIZONTAL;
-                }
-                else {
+                } else {
                     mCurrentFlingDirection = Direction.VERTICAL;
                     mCurrentScrollDirection = Direction.VERTICAL;
                 }
@@ -153,9 +160,12 @@ public class WeekView extends View {
 
             if (mCurrentFlingDirection == Direction.HORIZONTAL){
                 mScroller.fling((int) mCurrentOrigin.x, 0, (int) (velocityX * mXScrollingSpeed), 0, Integer.MIN_VALUE, Integer.MAX_VALUE, 0, 0);
+//                mScroller.fling((int) mCurrentOrigin.x, 0, (int) (velocityX * mXScrollingSpeed), 0, Integer.MIN_VALUE, (int)(mHourHeight * doctors.size() + mHeaderTextHeight + mHeaderRowPadding * 2), 0, 0);
             }
             else if (mCurrentFlingDirection == Direction.VERTICAL){
-                mScroller.fling(0, (int) mCurrentOrigin.y, 0, (int) velocityY, 0, 0, (int) -(mHourHeight * names.length + mHeaderTextHeight + mHeaderRowPadding * 2 - getHeight()), 0);
+                if (mHourHeight * doctors.size() + mHeaderTextHeight + mHeaderRowPadding * 2 > getHeight()) {
+                    mScroller.fling(0, (int) mCurrentOrigin.y, 0, (int) velocityY, 0, 0, (int) -(mHourHeight * doctors.size() + mHeaderTextHeight + mHeaderRowPadding * 2 - getHeight()), 0);
+                }
             }
 
             ViewCompat.postInvalidateOnAnimation(WeekView.this);
@@ -405,11 +415,13 @@ public class WeekView extends View {
 
     private void drawNameColumnAndAxes(Canvas canvas) {
         // Do not let the view go above/below the limit due to scrolling. Set the max and min limit of the scroll.
-        if (mCurrentScrollDirection == Direction.VERTICAL) {
-            if (mCurrentOrigin.y - mDistanceY > 0) mCurrentOrigin.y = 0;
-            else if (mCurrentOrigin.y - mDistanceY < -(mHourHeight * names.length + mHeaderTextHeight + mHeaderRowPadding * 2 - getHeight()))
-                mCurrentOrigin.y = -(mHourHeight * names.length + mHeaderTextHeight + mHeaderRowPadding * 2 - getHeight());
-            else mCurrentOrigin.y -= mDistanceY;
+        if (mHourHeight * doctors.size() + mHeaderTextHeight + mHeaderRowPadding * 2 > getHeight()) {
+            if (mCurrentScrollDirection == Direction.VERTICAL) {
+                if (mCurrentOrigin.y - mDistanceY > 0) mCurrentOrigin.y = 0;
+                else if (mCurrentOrigin.y - mDistanceY < -(mHourHeight * doctors.size() + mHeaderTextHeight + mHeaderRowPadding * 2 - getHeight()))
+                    mCurrentOrigin.y = -(mHourHeight * doctors.size() + mHeaderTextHeight + mHeaderRowPadding * 2 - getHeight());
+                else mCurrentOrigin.y -= mDistanceY;
+            }
         }
 
         // Draw the background color for the header column.
@@ -418,7 +430,7 @@ public class WeekView extends View {
         //Draw the time-zone background color for the header column.
         canvas.drawRect(mHeaderColumnWidth, mHeaderTextHeight + mHeaderRowPadding * 2, mRowHeaderWidth, getHeight(), mHeaderColumnBackgroundPaint);
 
-        for (int i = 0; i < names.length; i++) {
+        for (int i = 0; i < doctors.size(); i++) {
             float top = mHeaderTextHeight + mHeaderRowPadding * 2 + mCurrentOrigin.y + mHourHeight * i + mHeaderMarginBottom + mHourHeight / 2;
             // Draw the text if its y position is not outside of the visible area. The pivot point of the text is the point at the bottom-right corner.
 //            String time = getDateTimeInterpreter().interpretTime(i);
@@ -430,7 +442,7 @@ public class WeekView extends View {
 
             if (top < getHeight()){
 //                canvas.drawText(names[i].getName(), nameX, top + mTimeTextHeight, mTimeTextPaint);
-                drawMutiLineTexts(names[i].getName(), nameX, top - mHourHeight / 2 + mTimeTextHeight, (int)mTimeTextWidth, canvas, mTimeTextPaint);
+                drawMutiLineTexts(doctors.get(i).getStaffName(), nameX, top - mHourHeight / 2 + mTimeTextHeight, (int)mTimeTextWidth, canvas, mTimeTextPaint);
 //                drawCentralText(canvas, mTimeTextPaint, names[i].getName(), mHeaderColumnPadding, top - mHourHeight / 2, mTimeTextWidth + mHeaderColumnPadding, top + mHourHeight);
 
                 //The x position of time-zone title;
@@ -553,8 +565,10 @@ public class WeekView extends View {
 
             // Draw background color for each day.
             float start =  (startPixel < mRowHeaderWidth ? mRowHeaderWidth : startPixel);
+            float bottom = mHeaderTextHeight + mHeaderRowPadding * 2 + mCurrentOrigin.y + mHourHeight * doctors.size() + mTimeTextHeight/2 + mHeaderMarginBottom;
             if (mWidthPerDay + startPixel - start > 0)
-                canvas.drawRect(start, mHeaderTextHeight + mHeaderRowPadding * 2 + mTimeTextHeight/2 + mHeaderMarginBottom, startPixel + mWidthPerDay, getHeight(), sameDay ? mTodayBackgroundPaint : mDayBackgroundPaint);
+//                canvas.drawRect(start, mHeaderTextHeight + mHeaderRowPadding * 2 + mTimeTextHeight/2 + mHeaderMarginBottom, startPixel + mWidthPerDay, getHeight(), sameDay ? mTodayBackgroundPaint : mDayBackgroundPaint);
+                canvas.drawRect(start, mHeaderTextHeight + mHeaderRowPadding * 2 + mTimeTextHeight/2 + mHeaderMarginBottom, startPixel + mWidthPerDay, bottom, sameDay ? mTodayBackgroundPaint : mDayBackgroundPaint);
 
             // Prepare to iterate for each hour to draw the hour lines.
             int lineCount = (int) ((getHeight() - mHeaderTextHeight - mHeaderRowPadding * 2 -
@@ -564,7 +578,7 @@ public class WeekView extends View {
 
             // Prepare the separator lines for hours.
             int i = 0;
-            for (int hourNumber = 0; hourNumber < names.length; hourNumber++) {
+            for (int hourNumber = 0; hourNumber < doctors.size(); hourNumber++) {
                 float top;
                 top = mHeaderTextHeight + mHeaderRowPadding * 2 + mCurrentOrigin.y + mHourHeight * hourNumber + mTimeTextHeight/2 + mHeaderMarginBottom;
                 if (top > mHeaderTextHeight + mHeaderRowPadding * 2 + mTimeTextHeight/2 + mHeaderMarginBottom - mHourSeparatorHeight && top < getHeight() && startPixel + mWidthPerDay - start > 0){
@@ -632,7 +646,7 @@ public class WeekView extends View {
 
         // Prepare the separator lines for hours.
         int i = 0;
-        for (int hourNumber = 0; hourNumber < names.length; hourNumber++) {
+        for (int hourNumber = 0; hourNumber < doctors.size(); hourNumber++) {
             float top;
             top = mHeaderTextHeight + mHeaderRowPadding * 2 + mCurrentOrigin.y + mHourHeight * hourNumber + mTimeTextHeight/2 + mHeaderMarginBottom;
             if (top > mHeaderTextHeight + mHeaderRowPadding * 2 + mTimeTextHeight/2 + mHeaderMarginBottom - mHourSeparatorHeight && top < getHeight() && startPixel + lineLength - startPixel > 0){
@@ -762,14 +776,14 @@ public class WeekView extends View {
                 if (isSameDay(mEventRects.get(i).event.getStartTime(), date)) {
 
                     // Calculate top.
-                    float top = mHourHeight * names.length * mEventRects.get(i).top / 1440 + mCurrentOrigin.y + mHeaderTextHeight + mHeaderRowPadding * 2 + mHeaderMarginBottom + mTimeTextHeight/2 + mEventMarginVertical;
+                    float top = mHourHeight * doctors.size() * mEventRects.get(i).top / 1440 + mCurrentOrigin.y + mHeaderTextHeight + mHeaderRowPadding * 2 + mHeaderMarginBottom + mTimeTextHeight/2 + mEventMarginVertical;
                     float originalTop = top;
                     if (top < mHeaderTextHeight + mHeaderRowPadding * 2 + mHeaderMarginBottom + mTimeTextHeight/2)
                         top = mHeaderTextHeight + mHeaderRowPadding * 2 + mHeaderMarginBottom + mTimeTextHeight/2;
 
                     // Calculate bottom.
                     float bottom = mEventRects.get(i).bottom;
-                    bottom = mHourHeight * names.length * bottom / 1440 + mCurrentOrigin.y + mHeaderTextHeight + mHeaderRowPadding * 2 + mHeaderMarginBottom + mTimeTextHeight/2 - mEventMarginVertical;
+                    bottom = mHourHeight * doctors.size() * bottom / 1440 + mCurrentOrigin.y + mHeaderTextHeight + mHeaderRowPadding * 2 + mHeaderMarginBottom + mTimeTextHeight/2 - mEventMarginVertical;
 
                     // Calculate left and right.
                     float left = startFromPixel + mEventRects.get(i).left * mWidthPerDay;
@@ -1420,12 +1434,8 @@ public class WeekView extends View {
         invalidate();
     }
 
-    public ScheduledPerson[] getNames() {
-        return names;
-    }
-
-    public void setNames(ScheduledPerson[] names) {
-        this.names = names;
+    public void setDoctors(List<Doctor> doctors) {
+        this.doctors = doctors;
     }
 
     public int getHeaderRowPadding() {
@@ -1790,15 +1800,15 @@ public class WeekView extends View {
         int verticalOffset = (int) (mHourHeight * rowNum);
         if (rowNum < 0)
             verticalOffset = 0;
-        else if (rowNum > names.length)
-            verticalOffset = mHourHeight * names.length;
+        else if (rowNum > doctors.size())
+            verticalOffset = mHourHeight * doctors.size();
 
         if (mAreDimensionsInvalid) {
             mScrollToHour = rowNum;
             return;
         }
-        else if (verticalOffset > mHourHeight * names.length - getHeight() + mHeaderTextHeight + mHeaderRowPadding * 2 + mHeaderMarginBottom)
-            verticalOffset = (int)(mHourHeight * names.length - getHeight() + mHeaderTextHeight + mHeaderRowPadding * 2 + mHeaderMarginBottom);
+        else if (verticalOffset > mHourHeight * doctors.size() - getHeight() + mHeaderTextHeight + mHeaderRowPadding * 2 + mHeaderMarginBottom)
+            verticalOffset = (int)(mHourHeight * doctors.size() - getHeight() + mHeaderTextHeight + mHeaderRowPadding * 2 + mHeaderMarginBottom);
 
         mCurrentOrigin.y = -verticalOffset;
         invalidate();

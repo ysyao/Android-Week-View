@@ -2,18 +2,19 @@ package com.alamkanak.weekview.sample;
 
 import android.graphics.RectF;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.adtech.webservice.daomain.Doctor;
 import com.alamkanak.weekview.DateTimeInterpreter;
 import com.alamkanak.weekview.ScheduledPerson;
 import com.alamkanak.weekview.WeekView;
 import com.alamkanak.weekview.WeekViewEvent;
 import com.alamkanak.weekview.WeekViewEventUtils;
+import com.google.gson.Gson;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -33,6 +34,7 @@ public class WeekViewActivity extends AppCompatActivity implements WeekView.Mont
     private static final int TYPE_WEEK_VIEW = 3;
     private int mWeekViewType = TYPE_THREE_DAY_VIEW;
     private WeekView mWeekView;
+    private List<Doctor> persons;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +43,8 @@ public class WeekViewActivity extends AppCompatActivity implements WeekView.Mont
 
         // Get a reference for the week view in the layout.
         mWeekView = (WeekView) findViewById(R.id.weekView);
-        mWeekView.setNames(initPerson());
+        persons = initPerson();
+        mWeekView.setDoctors(persons);
 
         // Show a toast message about the touched event.
         mWeekView.setOnEventClickListener(this);
@@ -142,29 +145,31 @@ public class WeekViewActivity extends AppCompatActivity implements WeekView.Mont
         });
     }
 
+    private static final String DOCTORS_JSON = "{\"tList\":[{\"orgNature\":\"1\",\"orgName\":\"四川省肿瘤医院\",\"orgCode\":\"scszlyy\",\"orgShortName\":\"四川省肿瘤医院\",\"staffAvgTime\":\"10\",\"recoupWay\":\"2\",\"feeList\":[{\"priceAmount\":5.0,\"priceTypeName\":\"挂号费\",\"priceId\":\"8999\",\"isSystem\":\"N\"},{\"priceAmount\":0.0,\"priceTypeName\":\"诊疗费\",\"priceId\":\"9000\",\"isSystem\":\"N\"}],\"dateList\":[{\"dutyId\":2573438,\"weekDay_Date\":\"2015-07-14\",\"weekDay_Name\":\"星期二\",\"period_Name\":\"下午\",\"period_Id\":2,\"reg_Number\":50,\"reg_Num_Remain\":50,\"reg_Num_Used\":0,\"typeId\":2002204,\"uuid\":\"ab8ea0ae4cfd45b0bab40e3cbe549020\",\"dutyLimit\":\"Y\"}],\"levelName\":\"主治\",\"staffId\":2022205,\"depId\":4383,\"staffName\":\"李静\",\"officeName\":\"血液透析室\",\"officeCategoryName\":\"血液透析室\",\"officeCategoryId\":4382,\"levelId\":2002204,\"orgId\":582,\"hasRegConfirm\":\"Y\",\"sex\":0}],\"messageStatus\":\"1\"}";
+    private List<Doctor> initPerson() {
+        Gson gson = new Gson();
+        ScheduledPerson person = gson.fromJson(DOCTORS_JSON, ScheduledPerson.class);
+//       ScheduledPerson person1 = new ScheduledPerson(new int[]{Calendar.MONDAY, Calendar.SATURDAY}, "华西-妇科主任-");
+//        ScheduledPerson person2 = new ScheduledPerson(new int[]{Calendar.THURSDAY, Calendar.SUNDAY}, "black");
+//        ScheduledPerson person3 = new ScheduledPerson(new int[]{Calendar.WEDNESDAY, Calendar.MONDAY}, "green");
+//        ScheduledPerson person4 = new ScheduledPerson(new int[]{Calendar.TUESDAY, Calendar.FRIDAY}, "blue");
+//        ScheduledPerson person5 = new ScheduledPerson(new int[]{Calendar.FRIDAY, Calendar.TUESDAY}, "purple");
+//        ScheduledPerson person6 = new ScheduledPerson(new int[]{Calendar.WEDNESDAY, Calendar.SATURDAY}, "red");
+//        ScheduledPerson person7 = new ScheduledPerson(new int[]{Calendar.THURSDAY, Calendar.FRIDAY}, "pink");
+//        ScheduledPerson person8 = new ScheduledPerson(new int[]{Calendar.MONDAY, Calendar.WEDNESDAY}, "snow");
+//        ScheduledPerson person9 = new ScheduledPerson(new int[]{Calendar.THURSDAY, Calendar.SATURDAY}, "orange");
+//        ScheduledPerson person10 = new ScheduledPerson(new int[]{Calendar.WEDNESDAY, Calendar.SATURDAY}, "yellow");
+//        ScheduledPerson person11 = new ScheduledPerson(new int[]{Calendar.MONDAY, Calendar.SATURDAY}, "light-yellow");
 
-    private ScheduledPerson[] initPerson() {
-       ScheduledPerson person1 = new ScheduledPerson(new int[]{Calendar.MONDAY, Calendar.SATURDAY}, "华西-妇科主任-李价");
-        ScheduledPerson person2 = new ScheduledPerson(new int[]{Calendar.THURSDAY, Calendar.SUNDAY}, "black");
-        ScheduledPerson person3 = new ScheduledPerson(new int[]{Calendar.WEDNESDAY, Calendar.MONDAY}, "green");
-        ScheduledPerson person4 = new ScheduledPerson(new int[]{Calendar.TUESDAY, Calendar.FRIDAY}, "blue");
-        ScheduledPerson person5 = new ScheduledPerson(new int[]{Calendar.FRIDAY, Calendar.TUESDAY}, "purple");
-        ScheduledPerson person6 = new ScheduledPerson(new int[]{Calendar.WEDNESDAY, Calendar.SATURDAY}, "red");
-        ScheduledPerson person7 = new ScheduledPerson(new int[]{Calendar.THURSDAY, Calendar.FRIDAY}, "pink");
-        ScheduledPerson person8 = new ScheduledPerson(new int[]{Calendar.MONDAY, Calendar.WEDNESDAY}, "snow");
-        ScheduledPerson person9 = new ScheduledPerson(new int[]{Calendar.THURSDAY, Calendar.SATURDAY}, "orange");
-        ScheduledPerson person10 = new ScheduledPerson(new int[]{Calendar.WEDNESDAY, Calendar.SATURDAY}, "yellow");
-        ScheduledPerson person11 = new ScheduledPerson(new int[]{Calendar.MONDAY, Calendar.SATURDAY}, "light-yellow");
-
-        return new ScheduledPerson[]{person1, person2, person3, person4, person5, person6, person7,person8,person9,person10,person11};
+        return person.getDoctors();
     }
 
 
     @Override
     public List<WeekViewEvent> onMonthChange(int newYear, int newMonth) {
-        ScheduledPerson[] persons = initPerson();
+//        List<Doctor> persons = initPerson();
 
-        return WeekViewEventUtils.createEvents(this, persons, newYear, newMonth, android.R.color.holo_green_light);
+        return WeekViewEventUtils.createEvents(this, persons, android.R.color.holo_green_light);
         // Populate the week view with some events.
 //        List<WeekViewEvent> events = new ArrayList<WeekViewEvent>();
 //
