@@ -387,12 +387,15 @@ public class WeekView extends View {
 
     private void drawNameAndPeriodTitle(Canvas canvas) {
         //Draw the header row names and periods.
-        float nameX = (mTimeTextWidth + mHeaderColumnPadding * 2) / 2;
+//        float nameX = (mTimeTextWidth + mHeaderColumnPadding * 2) / 2;
+//        float nameX = mTimeTextWidth + mHeaderColumnPadding;
+        float nameX = mRowHeaderWidth / 4;
         canvas.drawText("医生", nameX, mHeaderTextHeight + mHeaderRowPadding, mHeaderTextPaint);
 
         float textLength = mTimeTextPaint.measureText("时段");
         float textPadding = (mTimeTextWidth - textLength) / 2;
-        float timeZoneWordX = nameX + mHeaderColumnPadding + mTimeTextWidth - textPadding;
+//        float timeZoneWordX = nameX + mHeaderColumnPadding + mTimeTextWidth - textPadding;
+        float timeZoneWordX = mRowHeaderWidth * 3 / 4;
         canvas.drawText("时段", timeZoneWordX, mHeaderTextHeight + mHeaderRowPadding, mHeaderTextPaint);
     }
 
@@ -449,7 +452,7 @@ public class WeekView extends View {
 
             if (top < getHeight()){
 //                canvas.drawText(names[i].getName(), nameX, top + mTimeTextHeight, mTimeTextPaint);
-                drawMutiLineTexts(doctors.get(i).getStaffName(), nameX, top - mHourHeight / 2 + mTimeTextHeight, (int)mTimeTextWidth, canvas, mTimeTextPaint);
+                drawMutiLineTexts(doctors.get(i).getStaffName(), nameX, top - mHourHeight / 2 + mTimeTextHeight, (int) mTimeTextWidth, canvas, mTimeTextPaint);
 //                drawCentralText(canvas, mTimeTextPaint, names[i].getName(), mHeaderColumnPadding, top - mHourHeight / 2, mTimeTextWidth + mHeaderColumnPadding, top + mHourHeight);
 
                 //The x position of time-zone title;
@@ -688,13 +691,24 @@ public class WeekView extends View {
      * @param canvas
      */
     private void drawMutiLineTexts(String text, float x, float y, int width, Canvas canvas, TextPaint paint) {
+//        paint.setTextAlign(Paint.Align.CENTER);
         StaticLayout mTextLayout = new StaticLayout(text, paint, width, Layout.Alignment.ALIGN_NORMAL, 1.0f, 0.0f, false);
         canvas.save();
 
         // calculate x and y position where your text will be placed
+//        float endY = mHeaderTextHeight + mHeaderRowPadding * 2 + mHourHeight * doctors.size() + mTimeTextHeight / 2 + mHeaderMarginBottom;
+//        Rect targetRect = new Rect(0, 0, (int)(mTimeTextWidth + mHeaderColumnPadding * 2), (int)endY);
+
         canvas.translate(x, y);
         mTextLayout.draw(canvas);
         canvas.restore();
+//        paint.setTextAlign(Paint.Align.CENTER);
+//        canvas.drawText(text, x, y ,paint);
+
+//        float endY = mHeaderTextHeight + mHeaderRowPadding * 2 + mHourHeight * doctors.size() + mTimeTextHeight / 2 + mHeaderMarginBottom;
+//        Rect targetRect = new Rect(0, 0, (int)(mTimeTextWidth + mHeaderColumnPadding * 2), (int)endY);
+//        paint.setTextAlign(Paint.Align.CENTER);
+//        canvas.drawText(text,targetRect.centerX(), targetRect.centerY(), paint);
     }
     /**
      * Get the time and date where the user clicked on.
@@ -1002,19 +1016,19 @@ public class WeekView extends View {
         }
 
         // Get events of previous month.
-        int previousMonth = (day.get(Calendar.MONTH) == 0?12:day.get(Calendar.MONTH));
-        int nextMonth = (day.get(Calendar.MONTH)+2 == 13 ?1:day.get(Calendar.MONTH)+2);
+//        int previousMonth = (day.get(Calendar.MONTH) == 0?12:day.get(Calendar.MONTH));
+//        int nextMonth = (day.get(Calendar.MONTH)+2 == 13 ?1:day.get(Calendar.MONTH)+2);
         int[] lastFetchedMonth = mFetchedMonths.clone();
-        if (mFetchedMonths[0] < 1 || mFetchedMonths[0] != previousMonth || mRefreshEvents) {
-            if (!containsValue(lastFetchedMonth, previousMonth) && !isInEditMode()){
-                List<WeekViewEvent> events = mMonthChangeListener.onMonthChange((previousMonth==12)?day.get(Calendar.YEAR)-1:day.get(Calendar.YEAR), previousMonth);
-                sortEvents(events);
-                for (WeekViewEvent event: events) {
-                    cacheEvent(event);
-                }
-            }
-            mFetchedMonths[0] = previousMonth;
-        }
+//        if (mFetchedMonths[0] < 1 || mFetchedMonths[0] != previousMonth || mRefreshEvents) {
+//            if (!containsValue(lastFetchedMonth, previousMonth) && !isInEditMode()){
+//                List<WeekViewEvent> events = mMonthChangeListener.onMonthChange((previousMonth==12)?day.get(Calendar.YEAR)-1:day.get(Calendar.YEAR), previousMonth);
+//                sortEvents(events);
+//                for (WeekViewEvent event: events) {
+//                    cacheEvent(event);
+//                }
+//            }
+//            mFetchedMonths[0] = previousMonth;
+//        }
 
         // Get events of this month.
         if (mFetchedMonths[1] < 1 || mFetchedMonths[1] != day.get(Calendar.MONTH)+1 || mRefreshEvents) {
@@ -1029,16 +1043,16 @@ public class WeekView extends View {
         }
 
         // Get events of next month.
-        if (mFetchedMonths[2] < 1 || mFetchedMonths[2] != nextMonth || mRefreshEvents) {
-            if (!containsValue(lastFetchedMonth, nextMonth) && !isInEditMode()) {
-                List<WeekViewEvent> events = mMonthChangeListener.onMonthChange(nextMonth == 1 ? day.get(Calendar.YEAR) + 1 : day.get(Calendar.YEAR), nextMonth);
-                sortEvents(events);
-                for (WeekViewEvent event : events) {
-                    cacheEvent(event);
-                }
-            }
-            mFetchedMonths[2] = nextMonth;
-        }
+//        if (mFetchedMonths[2] < 1 || mFetchedMonths[2] != nextMonth || mRefreshEvents) {
+//            if (!containsValue(lastFetchedMonth, nextMonth) && !isInEditMode()) {
+//                List<WeekViewEvent> events = mMonthChangeListener.onMonthChange(nextMonth == 1 ? day.get(Calendar.YEAR) + 1 : day.get(Calendar.YEAR), nextMonth);
+//                sortEvents(events);
+//                for (WeekViewEvent event : events) {
+//                    cacheEvent(event);
+//                }
+//            }
+//            mFetchedMonths[2] = nextMonth;
+//        }
 
         // Prepare to calculate positions of each events.
         ArrayList<EventRect> tempEvents = new ArrayList<EventRect>(mEventRects);

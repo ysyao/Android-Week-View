@@ -6,6 +6,7 @@ import com.adtech.webservice.daomain.Doctor;
 import com.adtech.webservice.daomain.WorkSchedule;
 
 import java.lang.annotation.Documented;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -38,10 +39,10 @@ public class WeekViewEventUtils {
             String[] dateArray = schedule.getWeekDay_Date().split("-");
             Calendar startTime = Calendar.getInstance();
             startTime.set(Calendar.YEAR, Integer.valueOf(dateArray[0]));
-            startTime.set(Calendar.MONTH, Integer.valueOf(dateArray[1]));
+            startTime.set(Calendar.MONTH, Integer.valueOf(dateArray[1])-1);
             startTime.set(Calendar.DAY_OF_MONTH, Integer.valueOf(dateArray[2]));
             startTime.set(Calendar.HOUR_OF_DAY, index);
-            if (schedule.getPeriod_Id().equals(2)) {
+            if (schedule.getPeriod_Id().equals(BigDecimal.valueOf(2))) {
 //                startTime.set(Calendar.HOUR_OF_DAY, index);
                 startTime.add(Calendar.MINUTE, 30);
             }

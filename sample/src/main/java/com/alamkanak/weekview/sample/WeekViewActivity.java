@@ -145,7 +145,7 @@ public class WeekViewActivity extends AppCompatActivity implements WeekView.Mont
         });
     }
 
-    private static final String DOCTORS_JSON = "{\"tList\":[{\"orgNature\":\"1\",\"orgName\":\"四川省肿瘤医院\",\"orgCode\":\"scszlyy\",\"orgShortName\":\"四川省肿瘤医院\",\"staffAvgTime\":\"10\",\"recoupWay\":\"2\",\"feeList\":[{\"priceAmount\":5.0,\"priceTypeName\":\"挂号费\",\"priceId\":\"8999\",\"isSystem\":\"N\"},{\"priceAmount\":0.0,\"priceTypeName\":\"诊疗费\",\"priceId\":\"9000\",\"isSystem\":\"N\"}],\"dateList\":[{\"dutyId\":2573438,\"weekDay_Date\":\"2015-07-14\",\"weekDay_Name\":\"星期二\",\"period_Name\":\"下午\",\"period_Id\":2,\"reg_Number\":50,\"reg_Num_Remain\":50,\"reg_Num_Used\":0,\"typeId\":2002204,\"uuid\":\"ab8ea0ae4cfd45b0bab40e3cbe549020\",\"dutyLimit\":\"Y\"}],\"levelName\":\"主治\",\"staffId\":2022205,\"depId\":4383,\"staffName\":\"李静\",\"officeName\":\"血液透析室\",\"officeCategoryName\":\"血液透析室\",\"officeCategoryId\":4382,\"levelId\":2002204,\"orgId\":582,\"hasRegConfirm\":\"Y\",\"sex\":0}],\"messageStatus\":\"1\"}";
+    private static final String DOCTORS_JSON = "{\"tList\":[{\"orgNature\":\"1\",\"orgName\":\"四川省肿瘤医院\",\"orgCode\":\"scszlyy\",\"orgShortName\":\"四川省肿瘤医院\",\"staffAvgTime\":\"10\",\"recoupWay\":\"2\",\"feeList\":[{\"priceAmount\":5.0,\"priceTypeName\":\"挂号费\",\"priceId\":\"8999\",\"isSystem\":\"N\"},{\"priceAmount\":0.0,\"priceTypeName\":\"诊疗费\",\"priceId\":\"9000\",\"isSystem\":\"N\"}],\"dateList\":[{\"dutyId\":2573438,\"weekDay_Date\":\"2015-07-14\",\"weekDay_Name\":\"星期二\",\"period_Name\":\"下午\",\"period_Id\":2,\"reg_Number\":50,\"reg_Num_Remain\":50,\"reg_Num_Used\":0,\"typeId\":2002204,\"uuid\":\"ab8ea0ae4cfd45b0bab40e3cbe549020\",\"dutyLimit\":\"Y\"}],\"levelName\":\"主治\",\"staffId\":2022205,\"depId\":4383,\"staffName\":\"华西-外科主任-李静\",\"officeName\":\"血液透析室\",\"officeCategoryName\":\"血液透析室\",\"officeCategoryId\":4382,\"levelId\":2002204,\"orgId\":582,\"hasRegConfirm\":\"Y\",\"sex\":0}],\"messageStatus\":\"1\"}";
     private List<Doctor> initPerson() {
         Gson gson = new Gson();
         ScheduledPerson person = gson.fromJson(DOCTORS_JSON, ScheduledPerson.class);
@@ -163,7 +163,6 @@ public class WeekViewActivity extends AppCompatActivity implements WeekView.Mont
 
         return person.getDoctors();
     }
-
 
     @Override
     public List<WeekViewEvent> onMonthChange(int newYear, int newMonth) {
