@@ -452,7 +452,9 @@ public class WeekView extends View {
 
             if (top < getHeight()){
 //                canvas.drawText(names[i].getName(), nameX, top + mTimeTextHeight, mTimeTextPaint);
-                drawMutiLineTexts(doctors.get(i).getStaffName(), nameX, top - mHourHeight / 2 + mTimeTextHeight, (int) mTimeTextWidth, canvas, mTimeTextPaint);
+                Doctor doctor = doctors.get(i);
+                String drawText = doctor.getStaffName() + "  (" + doctor.getLevelName() + ")";
+                drawMutiLineTexts(drawText, nameX, top - mHourHeight / 2 + mTimeTextHeight, (int) mTimeTextWidth, canvas, mTimeTextPaint);
 //                drawCentralText(canvas, mTimeTextPaint, names[i].getName(), mHeaderColumnPadding, top - mHourHeight / 2, mTimeTextWidth + mHeaderColumnPadding, top + mHourHeight);
 
                 //The x position of time-zone title;

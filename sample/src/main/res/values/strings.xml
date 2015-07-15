@@ -15,5 +15,6 @@
     <string name="style_adapter">Style adapter</string>
     <string name="family_adapter">Family adapter</string>
     <string name="title_activity_scrollable_table_layout">ScrollableTableLayoutActivity</string>
+    <string name="title_activity_selection">SelectionActivity</string>
 
 </resources>

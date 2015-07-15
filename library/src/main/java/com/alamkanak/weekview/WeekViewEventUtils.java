@@ -37,19 +37,6 @@ public class WeekViewEventUtils {
         List<WeekViewEvent> events = new ArrayList<WeekViewEvent>();
         for (WorkSchedule schedule : schedules) {
             String[] dateArray = schedule.getWeekDay_Date().split("-");
-//            Calendar startTime = Calendar.getInstance();
-//            startTime.set(Calendar.YEAR, Integer.valueOf(dateArray[0]));
-//            startTime.set(Calendar.MONTH, Integer.valueOf(dateArray[1])-1);
-//            startTime.set(Calendar.DAY_OF_MONTH, Integer.valueOf(dateArray[2]));
-//            startTime.set(Calendar.HOUR_OF_DAY, index);
-//            if (schedule.getPeriod_Id().equals(BigDecimal.valueOf(2))) {
-////                startTime.set(Calendar.HOUR_OF_DAY, index);
-//                startTime.add(Calendar.MINUTE, 30);
-//            }
-//            Calendar endTime = (Calendar) startTime.clone();
-//            endTime.add(Calendar.MINUTE, 30);
-//            WeekViewEvent event = new WeekViewEvent(index, schedule.getReg_Num_Remain() + "/" + schedule.getReg_Number(), startTime, endTime);
-
             int year = Integer.valueOf(dateArray[0]);
             int month = Integer.valueOf(dateArray[1]);
             int day = Integer.valueOf(dateArray[2]);
@@ -64,12 +51,13 @@ public class WeekViewEventUtils {
             }
 
             WeekViewEvent event = new WeekViewEvent(index, schedule.getReg_Num_Remain() + "/" + schedule.getReg_Number(),
-                    year, month, day, index, startMinute, year, month, day, endHour, endMinute);
+                    year, month, day, index, startMinute, year, month, day, endHour, endMinute, schedule);
             event.setColor(context.getResources().getColor(color));
             events.add(event);
         }
         return events;
     }
+
     public static List<WeekViewEvent> createEvents(Context context, List<Doctor> doctors, int color) {
         List<WeekViewEvent> events = new ArrayList<WeekViewEvent>();
         for (int i=0;i<doctors.size();i++) {

@@ -6,12 +6,15 @@
     tools:context=".MyActivity"
     android:background="#fff">
 
+
     <com.alamkanak.weekview.WeekView
         android:id="@+id/weekView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         app:eventTextColor="@android:color/white"
         app:textSize="12sp"
+        app:eventPadding="2dp"
+        app:eventMarginVertical="0.5dp"
         app:hourHeight="100dp"
         app:headerColumnPadding="8dp"
         app:headerColumnTextColor="@color/toolbar_text"

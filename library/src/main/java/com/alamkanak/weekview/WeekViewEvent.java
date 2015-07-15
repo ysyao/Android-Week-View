@@ -12,6 +12,7 @@ public class WeekViewEvent {
     private Calendar mEndTime;
     private String mName;
     private int mColor;
+    private Object object;
 
     public WeekViewEvent(){
 
@@ -32,7 +33,7 @@ public class WeekViewEvent {
      * @param endHour Hour (in 24-hour format) when the event ends.
      * @param endMinute Minute when the event ends.
      */
-    public WeekViewEvent(long id, String name, int startYear, int startMonth, int startDay, int startHour, int startMinute, int endYear, int endMonth, int endDay, int endHour, int endMinute) {
+    public WeekViewEvent(long id, String name, int startYear, int startMonth, int startDay, int startHour, int startMinute, int endYear, int endMonth, int endDay, int endHour, int endMinute, Object object) {
         this.mId = id;
 
         this.mStartTime = Calendar.getInstance();
@@ -50,6 +51,7 @@ public class WeekViewEvent {
         this.mEndTime.set(Calendar.MINUTE, endMinute);
 
         this.mName = name;
+        this.object = object;
     }
 
     /**
@@ -66,6 +68,13 @@ public class WeekViewEvent {
         this.mEndTime = endTime;
     }
 
+    public Object getObject() {
+        return object;
+    }
+
+    public void setObject(Object object) {
+        this.object = object;
+    }
 
     public Calendar getStartTime() {
         return mStartTime;

@@ -2,17 +2,17 @@ apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion 21
-    buildToolsVersion '23.0.0 rc2'
+    buildToolsVersion '21.1.2'
     defaultConfig {
         minSdkVersion 9
-        targetSdkVersion 21
+        targetSdkVersion 23
     }
     productFlavors {
     }
 }
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile 'com.google.code.gson:gson:2.3.1'
+    compile files('libs/regService.jar')
     compile 'com.android.support:appcompat-v7:22.2.0'
-    compile files('libs/gson-2.3.1.jar')
 }
 //apply from: 'https://raw.github.com/chrisbanes/gradle-mvn-push/master/gradle-mvn-push.gradle'
