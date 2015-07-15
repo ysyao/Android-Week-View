@@ -3,6 +3,7 @@ package com.alamkanak.weekview.sample;
 import android.graphics.RectF;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.JsonReader;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -16,6 +17,14 @@ import com.alamkanak.weekview.WeekViewEvent;
 import com.alamkanak.weekview.WeekViewEventUtils;
 import com.google.gson.Gson;
 
+import org.apache.http.util.EntityUtils;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StringReader;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
@@ -112,6 +121,9 @@ public class WeekViewActivity extends AppCompatActivity implements WeekView.Mont
                     mWeekView.setEventTextSize((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 10, getResources().getDisplayMetrics()));
                 }
                 return true;
+            case R.id.action_switch_data:
+
+                return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -145,21 +157,49 @@ public class WeekViewActivity extends AppCompatActivity implements WeekView.Mont
         });
     }
 
-    private static final String DOCTORS_JSON = "{\"tList\":[{\"orgNature\":\"1\",\"orgName\":\"四川省肿瘤医院\",\"orgCode\":\"scszlyy\",\"orgShortName\":\"四川省肿瘤医院\",\"staffAvgTime\":\"10\",\"recoupWay\":\"2\",\"feeList\":[{\"priceAmount\":5.0,\"priceTypeName\":\"挂号费\",\"priceId\":\"8999\",\"isSystem\":\"N\"},{\"priceAmount\":0.0,\"priceTypeName\":\"诊疗费\",\"priceId\":\"9000\",\"isSystem\":\"N\"}],\"dateList\":[{\"dutyId\":2573438,\"weekDay_Date\":\"2015-07-15\",\"weekDay_Name\":\"星期三\",\"period_Name\":\"下午\",\"period_Id\":2,\"reg_Number\":50,\"reg_Num_Remain\":50,\"reg_Num_Used\":0,\"typeId\":2002204,\"uuid\":\"ab8ea0ae4cfd45b0bab40e3cbe549020\",\"dutyLimit\":\"Y\"}],\"levelName\":\"主治\",\"staffId\":2022205,\"depId\":4383,\"staffName\":\"华西-外科主任-李静\",\"officeName\":\"血液透析室\",\"officeCategoryName\":\"血液透析室\",\"officeCategoryId\":4382,\"levelId\":2002204,\"orgId\":582,\"hasRegConfirm\":\"Y\",\"sex\":0}],\"messageStatus\":\"1\"}";
+    private static final String DOCTORS_JSON = "{\"tList\":[{\"orgNature\":\"1\",\"orgName\":\"四川省肿瘤医院\",\"orgCode\":\"scszlyy\",\"orgShortName\":\"四川省肿瘤医院\",\"staffAvgTime\":\"10\",\"recoupWay\":\"2\",\"feeList\":[{\"priceAmount\":5.0,\"priceTypeName\":\"挂号费\",\"priceId\":\"8999\",\"isSystem\":\"N\"},{\"priceAmount\":0.0,\"priceTypeName\":\"诊疗费\",\"priceId\":\"9000\",\"isSystem\":\"N\"}],\"dateList\":[{\"dutyId\":2573438,\"weekDay_Date\":\"2015-07-15\",\"weekDay_Name\":\"星期三\",\"period_Name\":\"上午\",\"period_Id\":1,\"reg_Number\":50,\"reg_Num_Remain\":50,\"reg_Num_Used\":0,\"typeId\":2002204,\"uuid\":\"ab8ea0ae4cfd45b0bab40e3cbe549020\",\"dutyLimit\":\"Y\"}],\"levelName\":\"主治\",\"staffId\":2022205,\"depId\":4383,\"staffName\":\"华西-外科主任-李静\",\"officeName\":\"血液透析室\",\"officeCategoryName\":\"血液透析室\",\"officeCategoryId\":4382,\"levelId\":2002204,\"orgId\":582,\"hasRegConfirm\":\"Y\",\"sex\":0}],\"messageStatus\":\"1\"}";
+
     private List<Doctor> initPerson() {
         Gson gson = new Gson();
-        ScheduledPerson person = gson.fromJson(DOCTORS_JSON, ScheduledPerson.class);
-//       ScheduledPerson person1 = new ScheduledPerson(new int[]{Calendar.MONDAY, Calendar.SATURDAY}, "华西-妇科主任-");
-//        ScheduledPerson person2 = new ScheduledPerson(new int[]{Calendar.THURSDAY, Calendar.SUNDAY}, "black");
-//        ScheduledPerson person3 = new ScheduledPerson(new int[]{Calendar.WEDNESDAY, Calendar.MONDAY}, "green");
-//        ScheduledPerson person4 = new ScheduledPerson(new int[]{Calendar.TUESDAY, Calendar.FRIDAY}, "blue");
-//        ScheduledPerson person5 = new ScheduledPerson(new int[]{Calendar.FRIDAY, Calendar.TUESDAY}, "purple");
-//        ScheduledPerson person6 = new ScheduledPerson(new int[]{Calendar.WEDNESDAY, Calendar.SATURDAY}, "red");
-//        ScheduledPerson person7 = new ScheduledPerson(new int[]{Calendar.THURSDAY, Calendar.FRIDAY}, "pink");
-//        ScheduledPerson person8 = new ScheduledPerson(new int[]{Calendar.MONDAY, Calendar.WEDNESDAY}, "snow");
-//        ScheduledPerson person9 = new ScheduledPerson(new int[]{Calendar.THURSDAY, Calendar.SATURDAY}, "orange");
-//        ScheduledPerson person10 = new ScheduledPerson(new int[]{Calendar.WEDNESDAY, Calendar.SATURDAY}, "yellow");
-//        ScheduledPerson person11 = new ScheduledPerson(new int[]{Calendar.MONDAY, Calendar.SATURDAY}, "light-yellow");
+//        ScheduledPerson person = gson.fromJson(DOCTORS_JSON, ScheduledPerson.class);
+        ScheduledPerson person = null;
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(
+                    new InputStreamReader(getAssets().open("doctors.json"), "UTF-8"));
+
+            // do reading, usually loop until end of file reading
+            StringBuilder json = new StringBuilder();
+            String mLine = reader.readLine();
+            while (mLine != null) {
+                //process line
+                json.append(mLine);
+                mLine = reader.readLine();
+            }
+
+            String jsonStr = json.toString();
+            person = gson.fromJson(jsonStr, ScheduledPerson.class);
+        } catch (IOException e) {
+            //log the exception
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    //log the exception
+                }
+            }
+        }
+
+//        try {
+//            InputStream is = getResources().getAssets().open("doctors.json");
+//            Reader reader = new InputStreamReader(is, "UTF-8");
+////            person = gson.fromJson(reader, ScheduledPerson.class);
+//            String json = reader.toString();
+//            person = gson.fromJson(json, ScheduledPerson.class);
+//        }catch (Exception e) {
+//            e.printStackTrace();
+//        }
 
         return person.getDoctors();
     }

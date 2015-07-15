@@ -20,5 +20,9 @@
             android:title="@string/action_week_view"
             android:orderInCategory="100"
             app:showAsAction="ifRoom"/>
+        <item android:id="@+id/action_switch_data"
+            android:title="Switch Data"
+            android:orderInCategory="100"
+            app:showAsAction="ifRoom"/>
     </group>
 </menu>
